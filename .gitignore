@@ -5,3 +5,7 @@
 *.cur_trans
 build
 .ipynb_checkpoints/
+
+.idea/
+
+cmake-build-debug/
