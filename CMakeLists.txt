@@ -122,21 +122,28 @@ add_subdirectory(contrib)
 #--------------------
 # DEPENDENCY:  boost
 #--------------------
-find_package(Boost COMPONENTS thread filesystem system program_options date_time REQUIRED)
-if (Boost_MINOR_VERSION GREATER 47)
-	find_package(Boost COMPONENTS thread filesystem system program_options date_time chrono REQUIRED)
-endif ()
+CPMAddPackage(
+		NAME Boost
+		GITHUB_REPOSITORY Orphis/boost-cmake
+		VERSION 1.67.0
+		FIND_PACKAGE_ARGUMENTS "COMPONENTS thread filesystem system program_options date_time chrono REQUIRED"
+)
+
+#Required to enable deprecated mutex::scoped_lock
+set_property(TARGET Boost::boost APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS BOOST_THREAD_PROVIDES_NESTED_LOCKS)
 
 #--------------------
 # DEPENDENCY: eigen 3
 #--------------------
-find_path(EIGEN_INCLUDE_DIR Eigen/Core
-	/usr/local/include/eigen3
-	/usr/include/eigen3
+CPMAddPackage(
+		NAME eigen
+		GITLAB_REPOSITORY libeigen/eigen
+		GIT_TAG 3.3.9
+		DOWNLOAD_ONLY True
 )
 
 # Suppress Eigen's warning by adding it to the system's library
-include_directories(SYSTEM "${EIGEN_INCLUDE_DIR}")
+include_directories(SYSTEM "${eigen_SOURCE_DIR}")
 
 #TODO: this should be a more standard way
 #find_package(Eigen3 REQUIRED)
@@ -147,6 +154,12 @@ include_directories(SYSTEM "${EIGEN_INCLUDE_DIR}")
 #--------------------
 # DEPENDENCY: nabo
 #--------------------
+CPMAddPackage(
+		NAME libnabo
+		GITHUB_REPOSITORY ketkev/libnabo
+		GIT_TAG 642a6597aabc997fc7975b257b00d76a0446a1ba
+)
+
 if (NOT TARGET nabo)
   # Find libnabo:
   find_package(libnabo REQUIRED PATHS ${LIBNABO_INSTALL_DIR})
@@ -159,7 +172,7 @@ endif()
 # This cmake target alias will be defined by either: 
 # a) libnabo sources if built as a git submodule in the same project than this library, or
 # b) by libnabo-targets.cmake, included by find_package(libnabo) above.
-set(libnabo_LIBRARIES libnabo::nabo)
+set(libnabo_LIBRARIES nabo)
 
 #--------------------
 # DEPENDENCY: OpenMP (optional)
@@ -365,14 +378,17 @@ target_include_directories(pointmatcher PUBLIC
   $<INSTALL_INTERFACE:pointmatcher>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pointmatcher>
-	$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
+	$<BUILD_INTERFACE:${Boost_SOURCE_DIR}/boost/boost_1_67_0>
 )
-if (libnabo_INCLUDE_DIRS)
-	include_directories(pointmatcher PUBLIC ${libnabo_INCLUDE_DIRS})
-endif()
+
+include_directories(pointmatcher PUBLIC ${libnabo_SOURCE_DIR})
 
 if (NOT MSVC)
 	target_compile_options(pointmatcher PRIVATE -Wall)
+endif()
+
+if(MSVC)
+	target_compile_options(pointmatcher PRIVATE /bigobj)
 endif()
 
 if(yaml-cpp_INCLUDE_DIRS AND yaml-cpp_LIBRARIES)
@@ -384,7 +400,7 @@ else() # embedded version:
 	# For now, let's add yaml-cpp-pm output to EXTERNAL_LIBS
 endif()
 
-target_link_libraries(pointmatcher PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(pointmatcher PUBLIC Boost::thread Boost::filesystem Boost::system Boost::program_options Boost::date_time Boost::chrono)
 target_link_libraries(pointmatcher PRIVATE ${libnabo_LIBRARIES})
 target_link_libraries(pointmatcher PRIVATE ${EXTERNAL_LIBS})
 if (EXTRA_DEPS)
