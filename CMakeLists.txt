@@ -360,8 +360,8 @@ set(POINTMATCHER_SRC
 	pointmatcher/DataPointsFilters/DistanceLimit.cpp
 	pointmatcher/DataPointsFilters/RemoveSensorBias.cpp
 	pointmatcher/DataPointsFilters/Sphericality.cpp
-	pointmatcher/DataPointsFilters/Saliency.cpp	
-	pointmatcher/DataPointsFilters/SpectralDecomposition.cpp	
+	pointmatcher/DataPointsFilters/Saliency.cpp
+	pointmatcher/DataPointsFilters/SpectralDecomposition.cpp
 )
 
 
@@ -500,99 +500,99 @@ if (BUILD_PYTHON_MODULE)
 endif()
 
 #=================== allow find_package() =========================
+##
+## the following case be used in an external project requiring libpointmatcher:
+##  ...
+##  find_package(libpointmatcher)
+##  include_directories(${libpointmatcher_INCLUDE_DIRS})
+##  target_link_libraries(executableName ${libpointmatcher_LIBRARIES})
+##  ...
 #
-# the following case be used in an external project requiring libpointmatcher:
-#  ...
-#  find_package(libpointmatcher)
-#  include_directories(${libpointmatcher_INCLUDE_DIRS})
-#  target_link_libraries(executableName ${libpointmatcher_LIBRARIES})
-#  ...
-
-# Install cmake config module
-install(EXPORT ${PROJECT_NAME}-config DESTINATION share/${PROJECT_NAME}/cmake)
-
-# make project importable from build_dir:
-export(
-	TARGETS pointmatcher
-	FILE ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-)
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS pointmatcher)
-
-# Create variable for the local build tree
-get_property(CONF_INCLUDE_DIRS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-
-# Create variable with the library location
-set(POINTMATCHER_LIB  $<TARGET_FILE:pointmatcher>)
-
-# Configure config file for local build tree
-configure_file(libpointmatcherConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/libpointmatcherConfig.cmake" @ONLY)
-
-# 2- installation build #
-
-# Change the include location for the case of an install location
-set(CONF_INCLUDE_DIRS ${INSTALL_INCLUDE_DIR} ${CONF_INCLUDE_DIRS} )
-
-#FIXME: this will only be applied to installed files. Confirm that we want that.
-# gather all the includes but remove ones in the source tree
-# because we added an include for the local yaml-cpp-pm we should also remove it
-list(REMOVE_ITEM CONF_INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/contrib/yaml-cpp-pm/include)
-
-# We put the generated file for installation in a different repository (i.e., ./CMakeFiles/)
-configure_file(libpointmatcherConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake" @ONLY)
-
-# The same versioning file can be used for both cases
-configure_file(libpointmatcherConfigVersion.cmake.in
-  "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake" @ONLY)
-
-
-# Install the libpointmatcherConfig.cmake and libpointmatcherConfigVersion.cmake
-install(
-  FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake"
-    "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
-)
-
-# useful for TRADR european project. TODO: check to use the other install
-# required for ros deployment, too
-install (
-  FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake"
-    "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake"
-  DESTINATION "share/${PROJECT_NAME}/cmake/"
-)
-
-#Handle pkg-config file
-set(LIBRARY_CC_ARGS "")
-foreach(_LIB IN LISTS POINTMATCHER_LIB EXTERNAL_LIBS)
-  get_filename_component(_FILE_NAME ${_LIB} NAME)
-  if(${_FILE_NAME} STREQUAL ${_LIB}) # not an absolute path
-    set(LIBRARY_CC_ARGS "${LIBRARY_CC_ARGS} -l${_LIB}")
-  else()
-    set(LIBRARY_CC_ARGS "${LIBRARY_CC_ARGS} ${_LIB}")
-  endif()
-endforeach()
-unset(_LIB)
-unset(_FILE_NAME)
-
-configure_file(pointmatcher.pc.in libpointmatcher.pc @ONLY)
-configure_file(pointmatcher.pc.in pointmatcher.pc @ONLY) # for backward compatibility
-install(FILES
-  ${CMAKE_BINARY_DIR}/libpointmatcher.pc
-  ${CMAKE_BINARY_DIR}/pointmatcher.pc # for backward compatibility
-  DESTINATION lib/pkgconfig
-)
-unset(LIBRARY_CC_ARGS)
+## Install cmake config module
+#install(EXPORT ${PROJECT_NAME}-config DESTINATION share/${PROJECT_NAME}/cmake)
+#
+## make project importable from build_dir:
+#export(
+#	TARGETS pointmatcher
+#	FILE ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+#)
+#add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS pointmatcher)
+#
+## Create variable for the local build tree
+#get_property(CONF_INCLUDE_DIRS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+#
+## Create variable with the library location
+#set(POINTMATCHER_LIB  $<TARGET_FILE:pointmatcher>)
+#
+## Configure config file for local build tree
+#configure_file(libpointmatcherConfig.cmake.in
+#  "${PROJECT_BINARY_DIR}/libpointmatcherConfig.cmake" @ONLY)
+#
+## 2- installation build #
+#
+## Change the include location for the case of an install location
+#set(CONF_INCLUDE_DIRS ${INSTALL_INCLUDE_DIR} ${CONF_INCLUDE_DIRS} )
+#
+##FIXME: this will only be applied to installed files. Confirm that we want that.
+## gather all the includes but remove ones in the source tree
+## because we added an include for the local yaml-cpp-pm we should also remove it
+#list(REMOVE_ITEM CONF_INCLUDE_DIRS ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/contrib/yaml-cpp-pm/include)
+#
+## We put the generated file for installation in a different repository (i.e., ./CMakeFiles/)
+#configure_file(libpointmatcherConfig.cmake.in
+#  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake" @ONLY)
+#
+## The same versioning file can be used for both cases
+#configure_file(libpointmatcherConfigVersion.cmake.in
+#  "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake" @ONLY)
+#
+#
+## Install the libpointmatcherConfig.cmake and libpointmatcherConfigVersion.cmake
+#install(
+#  FILES
+#    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake"
+#    "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake"
+#  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+#)
+#
+## useful for TRADR european project. TODO: check to use the other install
+## required for ros deployment, too
+#install (
+#  FILES
+#    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/libpointmatcherConfig.cmake"
+#    "${PROJECT_BINARY_DIR}/libpointmatcherConfigVersion.cmake"
+#  DESTINATION "share/${PROJECT_NAME}/cmake/"
+#)
+#
+##Handle pkg-config file
+#set(LIBRARY_CC_ARGS "")
+#foreach(_LIB IN LISTS POINTMATCHER_LIB EXTERNAL_LIBS)
+#  get_filename_component(_FILE_NAME ${_LIB} NAME)
+#  if(${_FILE_NAME} STREQUAL ${_LIB}) # not an absolute path
+#    set(LIBRARY_CC_ARGS "${LIBRARY_CC_ARGS} -l${_LIB}")
+#  else()
+#    set(LIBRARY_CC_ARGS "${LIBRARY_CC_ARGS} ${_LIB}")
+#  endif()
+#endforeach()
+#unset(_LIB)
+#unset(_FILE_NAME)
+#
+#configure_file(pointmatcher.pc.in libpointmatcher.pc @ONLY)
+#configure_file(pointmatcher.pc.in pointmatcher.pc @ONLY) # for backward compatibility
+#install(FILES
+#  ${CMAKE_BINARY_DIR}/libpointmatcher.pc
+#  ${CMAKE_BINARY_DIR}/pointmatcher.pc # for backward compatibility
+#  DESTINATION lib/pkgconfig
+#)
+#unset(LIBRARY_CC_ARGS)
 
 #====================== uninstall target ===============================
-if (NOT TARGET uninstall)
-  configure_file(
-	  "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-	  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-	  IMMEDIATE @ONLY)
-
-  add_custom_target(uninstall
-	  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
-endif()
+#if (NOT TARGET uninstall)
+#  configure_file(
+#	  "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#	  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#	  IMMEDIATE @ONLY)
+#
+#  add_custom_target(uninstall
+#	  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+#endif()
