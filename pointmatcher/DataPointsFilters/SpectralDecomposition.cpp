@@ -143,7 +143,7 @@ void SpectralDecompositionDataPointsFilter<T>::addDescriptor(DataPoints& pts, co
 	if(keepLabels_ or keepLambdas_)
 	{
 	#pragma omp parallel for
-		for(std::size_t i = 0; i < nbPts; ++i)
+		for(std::intmax_t i = 0; i < nbPts; ++i)
 		{
 			const T lambda1 = tv.surfaceness(i) + tv.curveness(i) + tv.pointness(i);
 			const T lambda2 = tv.curveness(i) + tv.pointness(i);
