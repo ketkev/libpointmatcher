@@ -105,6 +105,9 @@ endforeach()
 
 #======================== External Dependencies ===============================
 
+# Add CPM (CMake Package Manager)
+include(cmake/CPM.cmake)
+
 # initially
 set(EXTERNAL_LIBS "")
 
