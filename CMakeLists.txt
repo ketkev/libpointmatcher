@@ -157,7 +157,7 @@ include_directories(SYSTEM "${eigen_SOURCE_DIR}")
 CPMAddPackage(
 		NAME libnabo
 		GITHUB_REPOSITORY ketkev/libnabo
-		GIT_TAG 642a6597aabc997fc7975b257b00d76a0446a1ba
+		GIT_TAG 9636a2fec39e2f32bdc2f12688012f6a1500d52d
 )
 
 if (NOT TARGET nabo)
