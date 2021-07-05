@@ -175,22 +175,6 @@ endif()
 set(libnabo_LIBRARIES nabo)
 
 #--------------------
-# DEPENDENCY: OpenMP (optional)
-#--------------------
-set(USE_OPEN_MP FALSE CACHE BOOL "Set to TRUE to use OpenMP")
-if (USE_OPEN_MP)
-	find_package(OpenMP)
-	if (OPENMP_FOUND)
-		add_definitions(-fopenmp -DHAVE_OPENMP)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-		if (CMAKE_COMPILER_IS_GNUCC)
-			set(EXTERNAL_LIBS ${EXTERNAL_LIBS} gomp)
-    		message("-- OpenMP found, parallel computer enabled")
-		endif()
-	endif()
-endif ()
-
-#--------------------
 # DEPENDENCY: OpenCL (optional)
 #--------------------
 set(USE_OPEN_CL "false" CACHE BOOL "Set to ON to look for OpenCL, if your libnabo was compiled with CL support")
@@ -412,6 +396,18 @@ if (POSIX_TIMERS AND NOT APPLE)
 endif ()
 
 set_target_properties(pointmatcher PROPERTIES VERSION "${POINTMATCHER_PROJECT_VERSION}" SOVERSION 1)
+
+#--------------------
+# DEPENDENCY: OpenMP (optional)
+#--------------------
+set(USE_OPEN_MP TRUE CACHE BOOL "Set to FALSE to not use OpenMP")
+if (USE_OPEN_MP)
+	find_package(OpenMP)
+	if(OpenMP_CXX_FOUND)
+		target_link_libraries(pointmatcher PUBLIC OpenMP::OpenMP_CXX)
+		message("-- OpenMP found - using OpenMP pointmatcher")
+	endif()
+endif ()
 
 #========================= Install commands ===========================
 
